@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NESTLEKUN - The Ultimate Discord Music Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --primary: #FF8C00; /* Deep Orange */
+            --primary-glow: rgba(255, 140, 0, 0.5);
+            --bg-dark: #111418;
+            --bg-card: #1e2126;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --gradient: linear-gradient(135deg, #FF8C00 0%, #FF4500 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- Navbar --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(17, 20, 24, 0.95);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo img {
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .nav-links button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: 'Prompt';
+            font-size: 16px;
+            margin-left: 30px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-links button:hover { color: var(--primary); }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 80px;
+            background: radial-gradient(circle at center, rgba(255,140,0,0.1) 0%, transparent 70%);
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #ddd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero span { color: var(--primary); -webkit-text-fill-color: var(--primary); }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* --- Live Stats --- */
+        .stats-container {
+            margin-top: 60px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            padding: 20px 30px;
+            border-radius: 12px;
+            min-width: 200px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace; /* Terminal vibe */
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Dashboard (Hidden by default) --- */
+        #dashboard-section {
+            display: none; /* Toggled via JS */
+            padding: 100px 20px;
+            min-height: 100vh;
+            background: var(--bg-dark);
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .control-btn:hover { color: var(--primary); }
+        .control-btn.play { font-size: 40px; color: var(--primary); }
+
+        /* --- Playlist Styles (Adapted) --- */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Prompt';
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        ul { list-style: none; }
+        li {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        li:hover { border-left-color: var(--primary); background: rgba(255,255,255,0.08); }
+
+        .song-name { color: #ddd; text-decoration: none; }
+        .delete-btn { color: #ff4757; background: none; border: none; cursor: pointer; }
+
+        /* --- Footer --- */
+        footer {
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <div class="logo">
+            <img src="logo.png" alt="Logo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            NESTLEKUN
+        </div>
+        
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero-section">
+        <h1>สุดยอดบอทเพลง<br><span>"NESTLEKUN"</span></h1>
+        <p>พร้อมระบบเพลย์ลิสต์ส่วนตัวที่คุณจัดการได้เองผ่านเว็บ<br>เปลี่ยนประสบการณ์การฟังเพลงบน Discord ของคุณวันนี้</p>
+        
+        <div class="hero-btns">
+            <button class="btn-primary" onclick="window.open('https://discord.com/oauth2/authorize?client_id=1397465776117780540')">
+                <i class="fab fa-discord"></i> เชิญบอทเข้าเซิร์ฟเวอร์
+            </button>
+
+        </div>  
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="ping-stat">--ms</div>
+                <div class="stat-label">ความหน่วง (Ping)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uptime-stat">--</div>
+                <div class="stat-label">เวลาทำงาน</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="servers-stat">--</div>
+                <div class="stat-label">เซิร์ฟเวอร์ที่ใช้งาน</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section (Hidden) -->
+    <section id="dashboard-section">
+        <div class="dashboard-container">
+            <h2 style="margin-bottom: 20px; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-list-music"></i> เพลย์ลิสต์ของคุณ
+                <span id="user-display" style="font-size: 14px; color: var(--text-muted); margin-left: auto;">Guest</span>
+            </h2>
+
+            <!-- Remote Control Mockup -->
+            <div class="control-panel">
+                <button class="control-btn"><i class="fas fa-random"></i></button>
+                <button class="control-btn"><i class="fas fa-step-backward"></i></button>
+                <button class="control-btn play"><i class="fas fa-play-circle"></i></button>
+                <button class="control-btn"><i class="fas fa-step-forward"></i></button>
+                <button class="control-btn"><i class="fas fa-redo"></i></button>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="วางลิงก์ YouTube/Spotify ที่นี่...">
+                <button class="btn-primary" id="addBtn">เพิ่มเพลง</button>
+            </div>
+
+            <ul id="playlist">
+                <!-- List Items -->
+            </ul>
+            <div id="loading" style="text-align: center; color: var(--text-muted); margin-top:20px;">กำลังโหลดข้อมูล...</div>
+        </div>
+    </section>
+
+
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBY5b_eChwHx3qO-J4YkW9aw03xOOEMurM",
+            authDomain: "discordunknow-54ce9.firebaseapp.com",
+            projectId: "discordunknow-54ce9",
+            storageBucket: "discordunknow-54ce9.firebasestorage.app",
+            messagingSenderId: "571989738366",
+            appId: "1:571989738366:web:009545030d8cbcfc11292f",
+            measurementId: "G-25J7QG5SM5",
+            databaseURL: "https://discordunknow-54ce9-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // --- Real-time Stats (Listening to Firebase) ---
+        const statsRef = ref(db, 'stats/bot_status');
+        onValue(statsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Ping
+                document.getElementById('ping-stat').innerText = Math.round(data.ping) + "ms";
+                
+                // Servers
+                document.getElementById('servers-stat').innerText = data.servers.toLocaleString();
+                
+                // Uptime (seconds to HH:MM)
+                const hours = Math.floor(data.uptime / 3600);
+                const minutes = Math.floor((data.uptime % 3600) / 60);
+                document.getElementById('uptime-stat').innerText = `${hours}ชม. ${minutes}น.`;
+            }
+        });
+
+        // --- Routing & Dashboard ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const uid = urlParams.get('uid');
+        const playlistList = document.getElementById('playlist');
+        const loading = document.getElementById('loading');
+        
+        window.toggleDashboard = function() {
+            if (!uid) {
+                alert("กรุณาใช้คำสั่ง /site ใน Discord เพื่อรับลิงก์เข้าสู่ระบบส่วนตัวครับ!");
+                return;
+            }
+            const hero = document.getElementById('hero-section');
+            const dash = document.getElementById('dashboard-section');
+            if (dash.style.display === 'block') {
+                dash.style.display = 'none';
+                hero.style.display = 'flex';
+                window.scrollTo(0, 0);
+            } else {
+                hero.style.display = 'none';
+                dash.style.display = 'block';
+                document.getElementById('user-display').innerText = "User ID: " + uid;
+            }
+        }
+        
+        window.scrollToTop = function() {
+             const hero = document.getElementById('hero-section');
+             const dash = document.getElementById('dashboard-section');
+             dash.style.display = 'none';
+             hero.style.display = 'flex';
+             window.scrollTo(0,0);
+        }
+
+        // Auto-open dashboard if uid is present
+        if (uid) {
+            window.toggleDashboard();
+        } else {
+            loading.style.display = 'none'; // Hide loading if on landing page
+        }
+
+        // --- Playlist Logic (Only runs if UID exists) ---
+        if (uid) {
+            const userPlaylistRef = ref(db, `playlists/${uid}`);
+            
+            new Sortable(playlistList, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function () { saveOrder(); }
+            });
+
+            onValue(userPlaylistRef, (snapshot) => {
+                loading.style.display = 'none';
+                playlistList.innerHTML = '';
+                const data = snapshot.val();
+                if (!data) {
+                    playlistList.innerHTML = '<div style="text-align:center; color:#666;">ยังไม่มีเพลงในเพลย์ลิสต์</div>';
+                    return;
+                }
+                const songs = Array.isArray(data) ? data : Object.values(data);
+                songs.forEach(url => { if(url) addSongToDOM(url); });
+            });
+
+            function addSongToDOM(url) {
+                const li = document.createElement('li');
+                li.dataset.url = url;
+                
+                // Extract simple name (mock)
+                let name = url;
+                if(url.includes('youtube.com')) name = "YouTube Video: " + url.substring(url.length-11);
+                
+                li.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px; overflow:hidden;">
+                        <i class="fas fa-bars" style="color:#666; cursor:grab;"></i>
+                        <a href="${url}" target="_blank" class="song-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</a>
+                    </div>
+                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                `;
+                li.querySelector('.delete-btn').addEventListener('click', () => {
+                    li.remove(); saveOrder();
+                });
+                playlistList.appendChild(li);
+            }
+
+            window.saveOrder = function() {
+                const items = playlistList.querySelectorAll('li');
+                const newPlaylist = [];
+                items.forEach(li => newPlaylist.push(li.dataset.url));
+                set(userPlaylistRef, newPlaylist);
+            }
+
+            document.getElementById('addBtn').addEventListener('click', () => {
+                const input = document.getElementById('urlInput');
+                const url = input.value.trim();
+                if (url) {
+                    get(userPlaylistRef).then((snap) => {
+                        let current = snap.val() || [];
+                        if (!Array.isArray(current)) current = Object.values(current);
+                        current.push(url);
+                        set(userPlaylistRef, current);
+                        input.value = '';
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
